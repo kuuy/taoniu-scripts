@@ -22,8 +22,8 @@ END
 
 count=$( redis-cli -n 8 HGET "binance:symbols:count" "spot" )
 count=$((count+0))
-max=$((count/50))
-if [ $((max*50)) -lt $count ]; then
+max=$((count/20))
+if [ $((max*20)) -lt $count ]; then
   max=$((max+1))
 fi
 

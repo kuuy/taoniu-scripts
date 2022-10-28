@@ -22,8 +22,8 @@ END
 
 count=$( redis-cli -n 8 HGET "binance:symbols:count" "spot" )
 count=$((count+0))
-max=$((count/30))
-if [ $((max*30)) -lt $count ]; then
+max=$((count/50))
+if [ $((max*50)) -lt $count ]; then
   max=$((max+1))
 fi
 
@@ -37,14 +37,19 @@ find /etc/supervisor.d -name "binance-spot-streams-*.conf" -exec basename {} \; 
 done
 
 id=1
-while [ $count -gt 0 ]; do
+while [ $id -lt $((max+1)) ]; do
   config=$(echo "$CONFIG" | sed -e "s/#ID/${id}/g")
   FILE=/etc/supervisor.d/binance-spot-streams-$id.conf
   if [ ! -f "$FILE" ]; then
     echo "$config" > $FILE
   fi
-  count=$((count-30))
   id=$((id+1))
 done
 
 supervisord ctl reload
+
+id=1
+while [ $id -lt $((max+1)) ]; do
+  supervisord ctl restart binance-spot-streams-$id
+  id=$((id+1))
+done
